@@ -1,6 +1,4 @@
 #!/usr/bin/python
-import pygtk
-pygtk.require('2.0')
 import gtk
 import os
 import sys
@@ -11,15 +9,15 @@ import pickle
 
 IMG_DIR = "Pictures"
 BLOCK_SIZE = 1024
-IMG_HEIGHT = 700
-IMG_WIDTH = 700
+IMG_HEIGHT = 600
+IMG_WIDTH = 600
 
 DEFAULT_ADDTAG = "Enter a new tag here."
 DEFAULT_REMTAG = "Remove an old tag here."
 DEFAULT_PATHENTRY = "path/to/specific/image"
 DEFAULT_NAMEENTRY = "Enter a filename for this image."
 
-DATA_FILE = "indexinator5000.dat"
+DATA_FILE = "5000.dat"
 
 class Catalogue:
     def __init__(self):
@@ -76,11 +74,12 @@ class Base:
         self.session_count = 1
         self.avtags = []
         self.usetags = []
+        self.filstr = ""
 
         window = gtk.Window(gtk.WINDOW_TOPLEVEL)
         window.connect("delete_event", gtk.main_quit)
 
-        #window.connect("key_press_event", self.temp)
+        window.connect("key_press_event", self.key_press)
 
         self.imglist = os.listdir(IMG_DIR)
         re_pic = re.compile("^.*\.(gif|jpg|jpeg|png|bmp)$")
@@ -167,11 +166,29 @@ class Base:
         self.get_next()
 
 
+    def key_press(self, widget, event):
+        accepted = range(ord('a'), ord('z')+1) + [ord(' ')]
+        if event.keyval in accepted:
+            self.filstr += chr(event.keyval)
+            self.populate_avtagbox()
+        elif event.keyval == ord('`'):
+            if len(self.avtags) > 0:
+                self.select_tag(self.avtags[0])
+        elif event.keyval == ord('~'):
+            self.submit(self.nameentry)
+        elif self.filstr != "":
+            self.filstr = ""
+            self.populate_avtagbox()
+        else:
+            pass
+            # print event.keyval
+
+
     def populate_avtagbox(self):
         for x in self.avtags:
             x.destroy()
         self.avtags = []
-        for tag in cat.tags:
+        for tag in filter(lambda w: w[:len(self.filstr)] == self.filstr, cat.tags):
             x = gtk.Button(tag)
             self.avtags += [x]
             x.show()
@@ -198,6 +215,8 @@ class Base:
         if tag not in cat.current['tags']:
             cat.current['tags'] = sorted(cat.current['tags'] + [tag])
         self.populate_usetagbox()
+        self.filstr = ""
+        self.populate_avtagbox()
 
 
     def unselect_tag(self, button):
@@ -207,8 +226,8 @@ class Base:
 
 
     def add_tag(self, _, entry):
-        tag = entry.get_text()
-        if tag == DEFAULT_ADDTAG:
+        tag = entry.get_text().lower()
+        if tag == "" or tag == DEFAULT_ADDTAG:
             return
         if tag not in cat.current['tags']:
             cat.current['tags'] = sorted(cat.current['tags'] + [tag])

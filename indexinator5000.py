@@ -138,7 +138,7 @@ class Base:
 
         submit = gtk.Button("Submit")
         submit.show()
-        submit.connect("clicked", lambda w: self.submit(self.nameentry))
+        submit.connect("clicked", self.go_submit)
         tagboxright.pack_end(submit, expand=False, fill=False, padding=6)
 
         self.nameentry.show()
@@ -150,21 +150,21 @@ class Base:
         self.filename.show()
         tagboxright.pack_end(self.filename, expand=False, fill=False, padding=0)
 
-        rementry = gtk.Entry()
-        rementry.show()
-        tagboxright.pack_end(rementry, expand=False, fill=False, padding=3)
-        rementry.connect("activate", self.rem_tag, rementry)
-        rementry.set_text(DEFAULT_REMTAG)
+        self.rementry = gtk.Entry()
+        self.rementry.show()
+        tagboxright.pack_end(self.rementry, expand=False, fill=False, padding=3)
+        self.rementry.connect("activate", self.rem_tag)
+        self.rementry.set_text(DEFAULT_REMTAG)
 
-        addentry = gtk.Entry()
-        addentry.show()
-        tagboxright.pack_end(addentry, expand=False, fill=False, padding=3)
-        addentry.connect("activate", self.add_tag, addentry)
-        addentry.set_text(DEFAULT_ADDTAG)
+        self.addentry = gtk.Entry()
+        self.addentry.show()
+        tagboxright.pack_end(self.addentry, expand=False, fill=False, padding=3)
+        self.addentry.connect("activate", self.add_tag)
+        self.addentry.set_text(DEFAULT_ADDTAG)
 
         get_next = gtk.Button("Get Random Image")
         get_next.show()
-        get_next.connect("clicked", lambda w: self.get_next())
+        get_next.connect("clicked", self.get_next)
         tagboxright.pack_end(get_next, expand=False, fill=False, padding=4)
 
         window.add(bigbox)
@@ -187,7 +187,7 @@ class Base:
             if len(self.avtags) > 0:
                 self.select_tag(self.avtags[0])
         elif event.keyval == ord('~'):
-            self.submit(self.nameentry)
+            self.go_submit()
         elif self.filstr != "":
             self.filstr = ""
             self.populate_avtagbox()
@@ -244,26 +244,26 @@ class Base:
         self.populate_usetagbox()
 
 
-    def add_tag(self, _, entry):
+    def add_tag(self, _):
         """ Adds a new tag to both lists (available and used) """
-        tag = entry.get_text().lower()
+        tag = self.addentry.get_text().lower()
         if tag == "" or tag == DEFAULT_ADDTAG:
             return
         if tag not in cat.current['tags']:
             cat.current['tags'] = sorted(cat.current['tags'] + [tag])
         if tag not in cat.tags:
             cat.tags = sorted(cat.tags + [tag])
-        entry.set_text("")
+        self.addentry.set_text("")
         self.populate_usetagbox()
         self.populate_avtagbox()
 
 
-    def rem_tag(self, _, entry):
+    def rem_tag(self, _):
         """ Removes an existing tag from both lists (available and used) """
-        tag = entry.get_text()
+        tag = self.rementry.get_text()
         cat.current['tags'] = [i for i in cat.current['tags'] if i != tag]
         cat.tags = [i for i in cat.tags if i != tag]
-        entry.set_text("")
+        self.rementry.set_text("")
         self.populate_usetagbox()
         self.populate_avtagbox()
 
@@ -303,18 +303,17 @@ class Base:
         self.display_img(name)
 
 
-    def submit(self, entry):
+    def go_submit(self, _ = None):
         """ Saves the current image's data and loads the next image. """
         if cat.current:
             self.session_count += 1
-            name = entry.get_text()
+            name = self.nameentry.get_text()
             if name == DEFAULT_NAMEENTRY:
                 name = ""
             cat.current['name'] = name
             cat.current['tags'] = [x.get_label() for x in self.usetags]
             cat.add_current()
             cat.save()
-            entry.set_text(DEFAULT_NAMEENTRY)
             self.get_next()
 
 

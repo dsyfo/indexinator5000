@@ -24,6 +24,7 @@ class Catalogue:
         self.images = {}
         self.tags = []
         self.current = {}
+        self.checked = []
 
     def get_img(self, name, path = ""):
         """
@@ -59,7 +60,8 @@ class Catalogue:
     def save(self):
         """ Writes all archived data to the file. """
         data = {'images': self.images,
-                'tags': self.tags}
+                'tags': self.tags,
+                'checked': self.checked}
         pickle.dump(data, file(DATA_FILE, 'w+'))
 
     def load(self):
@@ -68,6 +70,8 @@ class Catalogue:
             data = pickle.load(file(DATA_FILE, 'r+'))
             self.images = data['images']
             self.tags = data['tags']
+            if 'checked' in data:
+                self.checked = data['checked']
         except IOError:
             print "File %s not found." % DATA_FILE
 
@@ -91,7 +95,12 @@ class Base:
         self.imglist = os.listdir(IMG_DIR)
         re_pic = re.compile("^.*\.(gif|jpg|jpeg|png|bmp)$")
         self.imglist = [name for name in self.imglist if re_pic.match(name) != None]
-        self.unchecked = list(self.imglist)
+        if cat.checked:
+            self.unchecked = list(set(self.imglist) - set(cat.checked))
+        else:
+            print "Please wait... checking for archived images."
+            self.unchecked = [i for i in self.imglist if not cat.get_img(i, IMG_DIR)]
+            cat.checked = list(set(self.imglist) - set(self.unchecked))
         random.shuffle(self.unchecked)
 
         bigbox = gtk.HBox(False, 0)
@@ -276,24 +285,21 @@ class Base:
         print path
 
 
-    def get_next(self):
+    def get_next(self, _ = None):
         """
         Retrieves the next image and associated data when "submit" or
         "get random image" is pressed.
         """
-        checknow = list(self.unchecked)
         found = False
-        for i in checknow:
-            name = i
-            self.unchecked.remove(i)
-            if cat.get_img(name, IMG_DIR):
-                continue
-            else:
+        while not found and len(self.unchecked) > 0:
+            name = self.unchecked.pop()
+            if not cat.get_img(name, IMG_DIR):
                 found = True
-                break
         if not found:
             name = self.imglist[random.randint(0,len(self.imglist)-1)]
             cat.get_img(name, IMG_DIR)
+        if name not in cat.checked:
+            cat.checked += [name]
         self.populate_usetagbox()
         self.populate_avtagbox()
         if cat.current['name'] == "":

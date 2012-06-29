@@ -26,6 +26,10 @@ class Catalogue:
         self.current = {}
 
     def get_img(self, name, path = ""):
+        """
+        Given an image name and a directory, retrieves an image and checks
+        whether it has been archived previously, and creates an entry if not.
+        """
         hasher = hashlib.md5()
         if len(path) > 0 and path[len(path)-1] != '/':
             path = path + '/'
@@ -49,14 +53,17 @@ class Catalogue:
             return False
 
     def add_current(self):
+        """ Adds the entry for the current image to the images archive. """
         self.images[self.current['md5']] = self.current
 
     def save(self):
+        """ Writes all archived data to the file. """
         data = {'images': self.images,
                 'tags': self.tags}
         pickle.dump(data, file(DATA_FILE, 'w+'))
 
     def load(self):
+        """ Loads an archive from the file. """
         try:
             data = pickle.load(file(DATA_FILE, 'r+'))
             self.images = data['images']
@@ -167,6 +174,11 @@ class Base:
 
 
     def key_press(self, widget, event):
+        """
+        This function is called whenever a key is pressed. Currently it contains code
+        for quick-picking tags and submitting images. (begin typing a tag name to filter
+        the list of tags, press ` to add the topmost tag, press ~ to submit the entry.)
+        """
         accepted = range(ord('a'), ord('z')+1) + [ord(' ')]
         if event.keyval in accepted:
             self.filstr += chr(event.keyval)
@@ -185,6 +197,10 @@ class Base:
 
 
     def populate_avtagbox(self):
+        """
+        Reloads the list of available tags, filtering out the tags that begin with
+        the string in self.filstr.
+        """
         for x in self.avtags:
             x.destroy()
         self.avtags = []
@@ -198,6 +214,7 @@ class Base:
 
 
     def populate_usetagbox(self):
+        """ Reloads the list of currently used tags. """
         for x in self.usetags:
             x.destroy()
         self.usetags = []
@@ -211,6 +228,7 @@ class Base:
 
 
     def select_tag(self, button):
+        """ Adds a tag from the list of available tags to the list of used tags. """
         tag = button.get_label()
         if tag not in cat.current['tags']:
             cat.current['tags'] = sorted(cat.current['tags'] + [tag])
@@ -220,12 +238,14 @@ class Base:
 
 
     def unselect_tag(self, button):
+        """ Removes a tag from the list of used tags. """
         tag = button.get_label()
         cat.current['tags'] = [i for i in cat.current['tags'] if i != tag]
         self.populate_usetagbox()
 
 
     def add_tag(self, _, entry):
+        """ Adds a new tag to both lists (available and used) """
         tag = entry.get_text().lower()
         if tag == "" or tag == DEFAULT_ADDTAG:
             return
@@ -239,6 +259,7 @@ class Base:
 
 
     def rem_tag(self, _, entry):
+        """ Removes an existing tag from both lists (available and used) """
         tag = entry.get_text()
         cat.current['tags'] = [i for i in cat.current['tags'] if i != tag]
         cat.tags = [i for i in cat.tags if i != tag]
@@ -248,6 +269,7 @@ class Base:
 
 
     def get_path(self, _, entry):
+        """ Not currently used, but would give current working directory. """
         path = entry.get_text()
         if path == DEFAULT_PATHENTRY:
             return
@@ -255,6 +277,10 @@ class Base:
 
 
     def get_next(self):
+        """
+        Retrieves the next image and associated data when "submit" or
+        "get random image" is pressed.
+        """
         checknow = list(self.unchecked)
         found = False
         for i in checknow:
@@ -278,6 +304,7 @@ class Base:
 
 
     def submit(self, entry):
+        """ Saves the current image's data and loads the next image. """
         if cat.current:
             self.session_count += 1
             name = entry.get_text()
@@ -292,6 +319,7 @@ class Base:
 
 
     def display_img(self, name):
+        """ Resizes and displays an image in the GUI. """
         self.imgname = name
         scalebuf = gtk.gdk.pixbuf_new_from_file("%s/%s" % (IMG_DIR, self.imgname))
         if scalebuf.get_width() > scalebuf.get_height():

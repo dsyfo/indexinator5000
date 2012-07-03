@@ -12,7 +12,7 @@ IMPORTANT NOTE: This script works for Linux ONLY. It will create a large number 
 
 
 2. Run the Indexinator5000 on the above folder. Use the command:
-    ./indexinator5000.py Pictures
+    python indexinator5000.py Pictures
 ...if your chosen folder is "Pictures". A random image will appear. You can add tags to it by typing into the textbox marked "Enter a new tag here." Tags you've already used before will appear in the middle column.
 
 ADVANCED TIPS: You can rapidly tag images by beginning to type the tag you want. Typing "`" will automatically select the tag at the top of the list and typing "~" will save the information you've entered and bring up the next image.
@@ -38,7 +38,7 @@ Give your configuration a fitting name, like "homestuck.cfg".
 
 
 4. Run the helper program to sort the images. This step will create the directories in your configuration file and symbolic links to your tagged images. Use the command:
-    ./helperinator5000.py Pictures Sorted homestuck.cfg
+    python helperinator5000.py Pictures Sorted homestuck.cfg
 ...if those are the names of your images folder, the destination folder, and your config file, respectively. The program will automatically create your sorted directory tree for you, assuming you tagged the images and put the rules into your configuration file correctly.
 
 

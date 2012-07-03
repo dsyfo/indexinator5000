@@ -348,5 +348,8 @@ class Base:
 if __name__ == "__main__":
     if len(sys.argv) > 1:
         IMG_DIR = sys.argv[1]
+    else:
+        print "USAGE: ./indexinator5000.py <IMAGE_FOLDER>"
+        exit(1)
     base = Base()
     base.main()

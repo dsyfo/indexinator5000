@@ -1,6 +1,7 @@
 #!/usr/bin/python
 import os
 import re
+from sys import argv
 
 import indexinator5000 as i5k
 cat = i5k.cat
@@ -17,8 +18,8 @@ root: (No rule because any item can be placed in root)
 """
 
 WORKING     = os.getcwd()
-IMG_PATH    = "%s/Pictures" % WORKING
-SORTED_PATH = "%s/Sorted" % WORKING
+img_path    = "%s/Pictures" % WORKING
+sorted_path = "%s/Sorted" % WORKING
 cfg_path    = "dir.cfg"
 # RECURSIVE: to be placed in a folder, image must satisfy conditions to be in parent
 RECURSIVE   = True
@@ -37,7 +38,7 @@ class Node:
         self.rule = []
         if init_str == None:
             self.parent = None
-            self.path = SORTED_PATH
+            self.path = sorted_path
             if self.path[len(self.path)-1] == "/":
                 self.path = self.path[:len(self.path)-1]
         else:
@@ -76,7 +77,7 @@ class Node:
             if (not RECURSIVE) or self.parent.check_rule(img['tags']):
                 if self_success and self.rule:
                     filename = filename.replace(" ", "\ ")
-                    ipath = IMG_PATH.replace(" ", "\ ")
+                    ipath = img_path.replace(" ", "\ ")
                     spath = self.path.replace(" ", "\ ")
                     iname = img['name'].replace(" ", "\ ")
                     cmd = "ln -s %s/%s %s/%s" % \
@@ -90,6 +91,13 @@ class Node:
 
 
 if __name__ == "__main__":
+    if len(argv) < 3:
+        print "USAGE: ./helperinator5000.py <SOURCE FOLDER> <DESTINATION> <CONFIG>"
+        exit(1)
+    img_path = "%s/%s" % (WORKING, argv[0])
+    sorted_path = "%s/%s" % (WORKING, argv[1])
+    cfg_path = argv[2]
+
     root = Node()
     current = root
     stack = []
@@ -107,9 +115,9 @@ if __name__ == "__main__":
         top.children += [current]
     f.close()
     re_pic = re.compile("^.*\.(gif|jpg|jpeg|png|bmp)$")
-    images = filter(lambda name: re_pic.match(name), os.listdir(IMG_PATH))
+    images = filter(lambda name: re_pic.match(name), os.listdir(img_path))
     for filename in images:
-        cat.get_img(filename, path=IMG_PATH)
+        cat.get_img(filename, path=img_path)
         if 'tags' in cat.current and cat.current['tags']:
             print filename
             root.add_image(filename, cat.current)

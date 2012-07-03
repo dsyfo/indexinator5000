@@ -50,7 +50,7 @@ class Node:
                 clause = clause.strip().split('|')
                 self.rule += [[i.strip() for i in clause]]
         if not os.path.isdir(self.path):
-            os.system("mkdir %s" % self.path)
+            os.system("mkdir %s" % self.path.replace(" ", "\ "))
         self.children = []
 
 
@@ -75,9 +75,13 @@ class Node:
         if REDUNDANT or not child_success:
             if (not RECURSIVE) or self.parent.check_rule(img['tags']):
                 if self_success and self.rule:
-                    os.system("ln -s %s/%s %s/%s" % \
-                            (IMG_PATH, filename, self.path, img['name']))
-                    print self.path
+                    filename = filename.replace(" ", "\ ")
+                    ipath = IMG_PATH.replace(" ", "\ ")
+                    spath = self.path.replace(" ", "\ ")
+                    iname = img['name'].replace(" ", "\ ")
+                    cmd = "ln -s %s/%s %s/%s" % \
+                            (ipath, filename, spath, iname)
+                    os.system(cmd)
         return child_success or self_success
 
 

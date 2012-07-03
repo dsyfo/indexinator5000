@@ -256,6 +256,8 @@ class Base:
     def add_tag(self, _):
         """ Adds a new tag to both lists (available and used) """
         tag = self.addentry.get_text().lower()
+        for c in "!|&`~:":
+            tag.replace(c, "?")
         if tag == "" or tag == DEFAULT_ADDTAG:
             return
         if tag not in cat.current['tags']:

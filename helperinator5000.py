@@ -1,6 +1,7 @@
 #!/usr/bin/python
 import os
 import re
+from platform import system
 from sys import argv
 
 import indexinator5000 as i5k
@@ -25,6 +26,7 @@ REDUNDANT   = False
 img_path = ""
 sorted_path = ""
 cfg_path = ""
+operating_system = system().lower()
 
 """
 rules for each node use and-or format
@@ -74,11 +76,20 @@ class Node:
         if REDUNDANT or not child_success:
             if (not RECURSIVE) or self.parent and self.parent.check_rule(img['tags']):
                 if self_success and self.rule:
-                    source = os.path.join(img_path, filename).replace(' ', '\ ')
-                    destination = os.path.join(self.path, img['name']).replace(' ', '\ ')
-                    cmd = "ln -s %s %s" % (source, destination)
-                    os.system(cmd)
+                    source = os.path.join(img_path, filename)
+                    destination = os.path.join(self.path, img['name'])
+                    self.create_link(source, destination)
         return child_success or self_success
+
+
+    def create_link(self, source, destination):
+        if 'linux' in operating_system:
+            source = source.replace(' ', '\ ')
+            destination = destination.replace(' ', '\ ')
+            cmd = "ln -s %s %s" % (source, destination)
+            os.system(cmd)
+        elif 'windows' in operating_system:
+            print "This is a Windows system."
 
 
     def __str__(self):
@@ -87,6 +98,7 @@ class Node:
 
 if __name__ == "__main__":
     if len(argv) < 4:
+        print operating_system
         print "USAGE: python helperinator5000.py <SOURCE FOLDER> <DESTINATION> <CONFIG>"
         exit(1)
     img_path = os.path.join(WORKING, argv[1])

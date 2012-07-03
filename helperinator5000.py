@@ -91,12 +91,13 @@ class Node:
 
 
 if __name__ == "__main__":
-    if len(argv) < 3:
+    if len(argv) < 4:
         print "USAGE: ./helperinator5000.py <SOURCE FOLDER> <DESTINATION> <CONFIG>"
         exit(1)
-    img_path = "%s/%s" % (WORKING, argv[0])
-    sorted_path = "%s/%s" % (WORKING, argv[1])
-    cfg_path = argv[2]
+    img_path = "%s/%s" % (WORKING, argv[1])
+    sorted_path = "%s/%s" % (WORKING, argv[2])
+    cfg_path = argv[3]
+    print img_path, sorted_path, cfg_path
 
     root = Node()
     current = root

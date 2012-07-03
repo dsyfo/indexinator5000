@@ -32,10 +32,12 @@ class Catalogue:
         whether it has been archived previously, and creates an entry if not.
         """
         hasher = hashlib.md5()
-        if len(path) > 0 and path[len(path)-1] != '/':
-            path = path + '/'
         try:
-            f = file(path + name, 'r')
+            if len(path) > 0:
+                temp = os.path.join(path, name)
+            else:
+                temp = name
+            f = file(temp, 'r')
         except IOError:
             print "Could not find %s%s" % (path, name)
             return None
@@ -328,7 +330,8 @@ class Base:
     def display_img(self, name):
         """ Resizes and displays an image in the GUI. """
         self.imgname = name
-        scalebuf = gtk.gdk.pixbuf_new_from_file("%s/%s" % (IMG_DIR, self.imgname))
+        path = os.path.join(IMG_DIR, self.imgname)
+        scalebuf = gtk.gdk.pixbuf_new_from_file(path)
         if scalebuf.get_width() > scalebuf.get_height():
             multiplier = scalebuf.get_width() / float(IMG_WIDTH)
         else:
@@ -349,7 +352,7 @@ if __name__ == "__main__":
     if len(sys.argv) > 1:
         IMG_DIR = sys.argv[1]
     else:
-        print "USAGE: ./indexinator5000.py <IMAGE_FOLDER>"
+        print "USAGE: python indexinator5000.py <IMAGE_FOLDER>"
         exit(1)
     base = Base()
     base.main()

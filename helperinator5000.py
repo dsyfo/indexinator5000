@@ -27,9 +27,9 @@ RECURSIVE   = True
 REDUNDANT   = False
 
 """
-rules for each node use or-and format
-    ex1: cat | dog & !bird -- YES if (cat OR dog) AND (NOT bird)
-    ex2: bird | !cat & bird | !dog -- YES if (bird OR NOT cat) AND (bird OR NOT dog)
+rules for each node use and-or format
+    ex1: cat | dog & !bird -- YES if cat OR (dog AND NOT bird)
+    ex2: bird | !cat & dog | fish -- YES if bird OR (NOT cat AND dog) OR fish
 """
 
 class Node:
@@ -45,10 +45,10 @@ class Node:
             self.parent = parent
             (name, rule) = tuple(self.init_str.split(':'))
             self.path = self.parent.path + '/' + name
-            clauses = rule.strip().split('&')
+            clauses = rule.strip().split('|')
             clauses = filter(lambda x: x != "", clauses)
             for clause in clauses:
-                clause = clause.strip().split('|')
+                clause = clause.strip().split('&')
                 self.rule += [[i.strip() for i in clause]]
         if not os.path.isdir(self.path):
             os.system("mkdir %s" % self.path.replace(" ", "\ "))
@@ -64,17 +64,17 @@ class Node:
             good = set(filter(lambda x: x[0] != "!", clause))
             bad = set(map(lambda x: x[1:], set(clause) - good))
             if set(tags) & bad:
-                return False
-            if not set(tags) & good:
-                return False
-        return True
+                continue
+            if set(tags) & good == good:
+                return True
+        return False
 
 
     def add_image(self, filename, img):
         child_success = sum([i.add_image(filename, img) for i in self.children])
         self_success = self.check_rule(img['tags'])
         if REDUNDANT or not child_success:
-            if (not RECURSIVE) or self.parent.check_rule(img['tags']):
+            if (not RECURSIVE) or self.parent and self.parent.check_rule(img['tags']):
                 if self_success and self.rule:
                     filename = filename.replace(" ", "\ ")
                     ipath = img_path.replace(" ", "\ ")
@@ -105,6 +105,8 @@ if __name__ == "__main__":
     f = open(cfg_path)
     lastdepth = -1
     for line in f:
+        if line.strip() == "":
+            continue
         depth = len(line) - len(line.lstrip())
         if depth < lastdepth and len(stack) > 1:
             stack.pop()

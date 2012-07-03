@@ -98,7 +98,10 @@ class Node:
             cmd = "ln -s %s %s" % (source, destination)
             os.system(cmd)
         elif 'windows' in operating_system:
-            print "This is a Windows system."
+            shortcut = file(destination + '.url', 'w')
+            shortcut.write('[InternetShortcut]\n')
+            shortcut.write('URL="%s"' % source)
+            shortcut.close()
 
 
     def __str__(self):

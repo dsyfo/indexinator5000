@@ -14,7 +14,7 @@ IMG_WIDTH = 600
 
 DEFAULT_ADDTAG = "Enter a new tag here."
 DEFAULT_REMTAG = "Remove an old tag here."
-DEFAULT_PATHENTRY = "path/to/specific/image"
+DEFAULT_PATHENTRY = "Enter the name of a file to edit here."
 DEFAULT_NAMEENTRY = "Enter a filename for this image."
 
 DATA_FILE = "5000.dat"
@@ -115,11 +115,11 @@ class Base:
         self.image.set_size_request(IMG_HEIGHT,IMG_WIDTH)
         imgbox.pack_start(self.image, expand=True, fill=False)
 
-        # pathentry = gtk.Entry()
-        # pathentry.show()
-        # databox.pack_start(pathentry, expand=False, fill=False)
-        # pathentry.connect("activate", self.get_path, pathentry)
-        # pathentry.set_text(DEFAULT_PATHENTRY)
+        pathentry = gtk.Entry()
+        pathentry.show()
+        imgbox.pack_start(pathentry, expand=False, fill=False)
+        pathentry.connect("activate", self.get_path, pathentry)
+        pathentry.set_text(DEFAULT_PATHENTRY)
 
         tagbox = gtk.HBox(False, 0)
         tagbox.show()
@@ -286,22 +286,25 @@ class Base:
         path = entry.get_text()
         if path == DEFAULT_PATHENTRY:
             return
-        print path
+        self.get_next(name = path)
 
 
-    def get_next(self, _ = None):
+    def get_next(self, _ = None, name = None):
         """
         Retrieves the next image and associated data when "submit" or
         "get random image" is pressed.
         """
         found = False
-        while not found and len(self.unchecked) > 0:
-            name = self.unchecked.pop()
-            if not cat.get_img(name, IMG_DIR):
-                found = True
-        if not found:
-            name = self.imglist[random.randint(0,len(self.imglist)-1)]
-            cat.get_img(name, IMG_DIR)
+        if not name:
+            while not found and len(self.unchecked) > 0:
+                name = self.unchecked.pop()
+                if not cat.get_img(name, IMG_DIR):
+                    found = True
+            if not found:
+                name = self.imglist[random.randint(0,len(self.imglist)-1)]
+                cat.get_img(name, IMG_DIR)
+        elif name not in self.imglist:
+            return
         if name not in cat.checked:
             cat.checked += [name]
         self.populate_usetagbox()

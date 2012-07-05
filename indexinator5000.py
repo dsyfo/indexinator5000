@@ -359,7 +359,6 @@ if __name__ == "__main__":
     if len(sys.argv) > 1:
         IMG_DIR = sys.argv[1]
     else:
-        print "USAGE: python indexinator5000.py <IMAGE_FOLDER>"
-        exit(1)
+        IMG_DIR = raw_input("Enter the name or path of the folder containing images. ")
     base = Base()
     base.main()

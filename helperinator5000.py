@@ -132,12 +132,17 @@ class Node:
 
 if __name__ == "__main__":
     if len(argv) < 4:
-        print operating_system
-        print "USAGE: python helperinator5000.py <SOURCE FOLDER> <DESTINATION> <CONFIG>"
-        exit(1)
-    img_path = os.path.join(WORKING, argv[1])
-    sorted_path = os.path.join(WORKING, argv[2])
-    cfg_path = os.path.join(WORKING, argv[3])
+        print "Operating system: " + operating_system
+        img_path = raw_input("Name of folder containing unsorted images: ")
+        sorted_path = raw_input("Name of folder to contain sorted images: ")
+        cfg_path = raw_input("Name of sorting configuration file: ")
+    else:
+        img_path = argv[1]
+        sorted_path = argv[2]
+        cfg_path = argv[3]
+    img_path = os.path.join(WORKING, img_path)
+    sorted_path = os.path.join(WORKING, sorted_path)
+    cfg_path = os.path.join(WORKING, cfg_path)
 
     root = Node()
     current = root

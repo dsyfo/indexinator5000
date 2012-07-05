@@ -11,9 +11,10 @@ MERGE_YOURS     = 4
 
 if __name__ == "__main__":
     if len(argv) < 2:
-        print "USAGE: python mergeinator5000.py <FOREIGN_ARCHIVE>"
-        exit(1)
-    foreign = i5k.Catalogue(argv[1])
+        foreign = raw_input("Name of foreign archive to merge: ")
+    else:
+        foreign = argv[1]
+    foreign = i5k.Catalogue(foreign)
     foreign.load()
     print "How would you like to handle merge conflicts?"
     print "1 - Combine the tags from both archives, keep my filenames."

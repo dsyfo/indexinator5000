@@ -303,7 +303,7 @@ class Base:
             if not found:
                 name = self.imglist[random.randint(0,len(self.imglist)-1)]
                 cat.get_img(name, IMG_DIR)
-        elif name not in self.imglist:
+        elif not cat.get_img(name, IMG_DIR):
             return
         if name not in cat.checked:
             cat.checked += [name]

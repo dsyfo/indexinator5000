@@ -156,6 +156,7 @@ class Base:
         tagboxright.pack_end(submit, expand=False, fill=False, padding=6)
 
         self.nameentry.show()
+        self.nameentry.connect("activate", self.go_submit)
         tagboxright.pack_end(self.nameentry, expand=False, fill=False, padding=0)
         self.nameentry.set_text(DEFAULT_NAMEENTRY)
 

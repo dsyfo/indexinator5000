@@ -5,6 +5,20 @@ from sys import argv
 from platform import system
 
 operating_system = system().lower()
+pywin_found = False
+if 'windows' in operating_system:
+    try:
+        from win32com.client import Dispatch
+        print "PyWin32 found."
+        i = raw_input("Should I use .lnk files instead of .url? y/n: ").lower()[0]
+        pywin_found = (i == 'y')
+    except ImportError:
+        print "PyWin32 not detected on this machine."
+        print "Should I continue by using .url files instead of .lnk shortcuts?"
+        print "You won't be able to see thumbnails for the images in your browser."
+        i = raw_input("y/n: ").lower()[0]
+        if i != 'y':
+            exit()
 
 import indexinator5000 as i5k
 cat = i5k.cat
@@ -92,16 +106,24 @@ class Node:
 
 
     def create_link(self, source, destination):
-        if 'linux' in operating_system:
+        if 'windows' in operating_system:
+            if pywin_found:
+                shell = Dispatch('WScript.Shell')
+                shortcut = shell.CreateShortCut(destination + '.lnk')
+                shortcut.Targetpath = source
+                shortcut.WorkingDirectory = os.path.split(source)[0]
+                shortcut.IconLocation = source
+                shortcut.save()
+            else:
+                shortcut = file(destination + '.url', 'w')
+                shortcut.write('[InternetShortcut]\n')
+                shortcut.write('URL="%s"' % source)
+                shortcut.close()
+        else:
             source = source.replace(' ', '\ ')
             destination = destination.replace(' ', '\ ')
             cmd = "ln -s %s %s" % (source, destination)
             os.system(cmd)
-        elif 'windows' in operating_system:
-            shortcut = file(destination + '.url', 'w')
-            shortcut.write('[InternetShortcut]\n')
-            shortcut.write('URL="%s"' % source)
-            shortcut.close()
 
 
     def __str__(self):

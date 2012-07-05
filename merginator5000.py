@@ -10,6 +10,7 @@ MERGE_MINE      = 3
 MERGE_YOURS     = 4
 
 if __name__ == "__main__":
+    print "WARNING: Do not merge data from an untrusted source."
     if len(argv) < 2:
         foreign = raw_input("Name of foreign archive to merge: ")
     else:

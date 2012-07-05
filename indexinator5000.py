@@ -20,7 +20,10 @@ DEFAULT_NAMEENTRY = "Enter a filename for this image."
 DATA_FILE = "5000.dat"
 
 class Catalogue:
-    def __init__(self):
+    def __init__(self, input_file = None):
+        if not input_file:
+            input_file = DATA_FILE
+        self.data_file = input_file
         self.images = {}
         self.tags = []
         self.current = {}
@@ -64,18 +67,18 @@ class Catalogue:
         data = {'images': self.images,
                 'tags': self.tags,
                 'checked': self.checked}
-        pickle.dump(data, file(DATA_FILE, 'w+'))
+        pickle.dump(data, file(self.data_file, 'w+'))
 
     def load(self):
         """ Loads an archive from the file. """
         try:
-            data = pickle.load(file(DATA_FILE, 'r+'))
+            data = pickle.load(file(self.data_file, 'r+'))
             self.images = data['images']
             self.tags = data['tags']
             if 'checked' in data:
                 self.checked = data['checked']
         except IOError:
-            print "File %s not found." % DATA_FILE
+            print "File %s not found." % self.data_file
 
 
 cat = Catalogue()

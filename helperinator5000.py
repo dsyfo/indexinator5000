@@ -92,13 +92,13 @@ class Node:
         return False
 
 
-    def add_image(self, filename, img_path):
+    def add_image(self, filename, img):
         ''' Recursively finds appropriate node for image and adds it. '''
-        child_success = sum([i.add_image(filename, img_path) for i in self.children])
+        child_success = sum([i.add_image(filename, img) for i in self.children])
         self_success = self.check_rule(img['tags'])
 
         if REDUNDANT or not child_success:
-            if (not RECURSIVE) or (self.parent and self.parent.check_rule(img['tags'])):
+            if (not RECURSIVE) or self.parent and self.parent.check_rule(img['tags']):
                 if self_success and self.rule:
                     source = os.path.join(img_path, filename)
                     destination = os.path.join(self.path, img['name'])

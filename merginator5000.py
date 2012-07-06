@@ -1,5 +1,6 @@
 #!/usr/bin/python
 from sys import argv
+import os
 import indexinator5000 as i5k
 
 cat = i5k.cat
@@ -15,7 +16,7 @@ if __name__ == "__main__":
         foreign = raw_input("Name of foreign archive to merge: ")
     else:
         foreign = argv[1]
-    foreign = i5k.Catalogue(foreign)
+    foreign = i5k.Catalogue(os.path.join(os.getcwd(), foreign))
     foreign.load()
 
     print "How would you like to handle merge conflicts?"

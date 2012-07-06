@@ -7,7 +7,6 @@ import hashlib
 import random
 import pickle
 
-IMG_DIR = "Pictures"
 BLOCK_SIZE = 1024
 IMG_HEIGHT = 600
 IMG_WIDTH = 600
@@ -18,12 +17,13 @@ DEFAULT_PATHENTRY = "Enter the name of a file to edit here."
 DEFAULT_NAMEENTRY = "Enter a filename for this image."
 
 DATA_FILE = "5000.dat"
+img_dir = "Pictures"
 
 class Catalogue:
     def __init__(self, input_file = None):
         if not input_file:
             input_file = DATA_FILE
-        self.data_file = input_file
+        self.data_file = os.path.join(os.getcwd(), input_file)
         self.images = {}
         self.tags = []
         self.current = {}
@@ -97,14 +97,14 @@ class Base:
 
         window.connect("key_press_event", self.key_press)
 
-        self.imglist = os.listdir(IMG_DIR)
+        self.imglist = os.listdir(img_dir)
         re_pic = re.compile("^.*\.(gif|jpg|jpeg|png|bmp)$")
         self.imglist = [name for name in self.imglist if re_pic.match(name) != None]
         if cat.checked:
             self.unchecked = list(set(self.imglist) - set(cat.checked))
         else:
             print "Please wait... checking for archived images."
-            self.unchecked = [i for i in self.imglist if not cat.get_img(i, IMG_DIR)]
+            self.unchecked = [i for i in self.imglist if not cat.get_img(i, img_dir)]
             cat.checked = list(set(self.imglist) - set(self.unchecked))
         random.shuffle(self.unchecked)
 
@@ -302,12 +302,12 @@ class Base:
         if not name:
             while not found and len(self.unchecked) > 0:
                 name = self.unchecked.pop()
-                if not cat.get_img(name, IMG_DIR):
+                if not cat.get_img(name, img_dir):
                     found = True
             if not found:
                 name = self.imglist[random.randint(0,len(self.imglist)-1)]
-                cat.get_img(name, IMG_DIR)
-        elif not cat.get_img(name, IMG_DIR):
+                cat.get_img(name, img_dir)
+        elif not cat.get_img(name, img_dir):
             return
         if name not in cat.checked:
             cat.checked += [name]
@@ -337,7 +337,7 @@ class Base:
     def display_img(self, name):
         """ Resizes and displays an image in the GUI. """
         self.imgname = name
-        path = os.path.join(IMG_DIR, self.imgname)
+        path = os.path.join(img_dir, self.imgname)
         scalebuf = gtk.gdk.pixbuf_new_from_file(path)
         if scalebuf.get_width() > scalebuf.get_height():
             multiplier = scalebuf.get_width() / float(IMG_WIDTH)
@@ -357,8 +357,9 @@ class Base:
 
 if __name__ == "__main__":
     if len(sys.argv) > 1:
-        IMG_DIR = sys.argv[1]
+        img_dir = sys.argv[1]
     else:
-        IMG_DIR = raw_input("Enter the name or path of the folder containing images. ")
+        img_dir = raw_input("Enter the name of the folder containing images. ")
+    img_dir = os.path.join(os.getcwd(), img_dir)
     base = Base()
     base.main()

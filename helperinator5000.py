@@ -152,17 +152,23 @@ if __name__ == "__main__":
     current = root
     stack = []
     f = open(cfg_path)
-    lastdepth = -1
+    prevdepths = [-1]
     for line in f:
         if line.strip() == "":
             continue
 
         depth = len(line) - len(line.lstrip())
-        if depth < lastdepth and len(stack) > 1:
-            stack.pop()
-        elif depth > lastdepth:
-            stack += [current]
-        lastdepth = depth
+        lastdepth = prevdepths[len(prevdepths)-1]
+        while lastdepth != depth:
+            if depth < lastdepth and len(stack) > 1:
+                stack.pop()
+                prevdepths.pop()
+            elif depth > lastdepth:
+                stack += [current]
+                prevdepths += [depth]
+            else:
+                break
+            lastdepth = prevdepths[len(prevdepths)-1]
 
         top = stack[len(stack)-1]
         current = Node(line, top)

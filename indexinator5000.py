@@ -219,7 +219,8 @@ class Base:
         for x in self.avtags:
             x.destroy()
         self.avtags = []
-        for tag in filter(lambda w: w[:len(self.filstr)] == self.filstr, cat.tags):
+        for tag in sorted(filter(lambda w: \
+                w[:len(self.filstr)] == self.filstr, cat.tags)):
             x = gtk.Button(tag)
             self.avtags += [x]
             x.show()
@@ -233,7 +234,7 @@ class Base:
         for x in self.usetags:
             x.destroy()
         self.usetags = []
-        for tag in cat.current['tags']:
+        for tag in sorted(cat.current['tags']):
             x = gtk.Button(tag)
             self.usetags += [x]
             x.show()

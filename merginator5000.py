@@ -17,6 +17,7 @@ if __name__ == "__main__":
         foreign = argv[1]
     foreign = i5k.Catalogue(foreign)
     foreign.load()
+
     print "How would you like to handle merge conflicts?"
     print "1 - Combine the tags from both archives, keep my filenames."
     print "2 - Combine the tags from both archives, keep foreign filenames."
@@ -32,19 +33,24 @@ if __name__ == "__main__":
         if fimage in cat.images:
             if conflicts == MERGE_COMBMINE:
                 cat.images[fimage]['tags'] += foreign.images[fimage]['tags']
+
             elif conflicts == MERGE_COMBYOURS:
                 cat.images[fimage]['tags'] += foreign.images[fimage]['tags']
                 cat.images[fimage]['name'] = foreign.images[fimage]['name']
+
             elif conflicts == MERGE_MINE:
                 pass
+
             elif conflicts == MERGE_YOURS:
                 cat.images[fimage]['tags'] = list(foreign.images[fimage]['tags'])
                 cat.images[fimage]['name'] = foreign.images[fimage]['name']
 
             cat.images[fimage]['tags'] = list(set(cat.images[fimage]['tags']))
+
         else:
             cat.images[fimage] = dict(foreign.images[fimage])
         running_tags = running_tags | set(cat.images[fimage]['tags'])
+
     cat.tags = list(running_tags)
     cat.save()
     print "Finished merging."

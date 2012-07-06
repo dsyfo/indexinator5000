@@ -75,6 +75,7 @@ class Node:
 
 
     def check_rule(self, tags):
+        ''' Given tags for an image, checks whether the image belongs in this node. '''
         if self.rule == []:
             return True
         if RECURSIVE and not self.parent.check_rule(tags):
@@ -91,12 +92,13 @@ class Node:
         return False
 
 
-    def add_image(self, filename, img):
-        child_success = sum([i.add_image(filename, img) for i in self.children])
+    def add_image(self, filename, img_path):
+        ''' Recursively finds appropriate node for image and adds it. '''
+        child_success = sum([i.add_image(filename, img_path) for i in self.children])
         self_success = self.check_rule(img['tags'])
 
         if REDUNDANT or not child_success:
-            if (not RECURSIVE) or self.parent and self.parent.check_rule(img['tags']):
+            if (not RECURSIVE) or (self.parent and self.parent.check_rule(img['tags'])):
                 if self_success and self.rule:
                     source = os.path.join(img_path, filename)
                     destination = os.path.join(self.path, img['name'])
@@ -106,6 +108,7 @@ class Node:
 
 
     def create_link(self, source, destination):
+        ''' Creates a soft link/shortcut to the image file in the source directory. '''
         if 'windows' in operating_system:
             if pywin_found:
                 shell = Dispatch('WScript.Shell')
@@ -144,6 +147,7 @@ if __name__ == "__main__":
     sorted_path = os.path.join(WORKING, sorted_path)
     cfg_path = os.path.join(WORKING, cfg_path)
 
+    # Build the directory tree, including rules for sorting images
     root = Node()
     current = root
     stack = []
